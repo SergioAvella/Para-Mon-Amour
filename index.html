@@ -169,7 +169,8 @@
       position: relative;
       z-index: 5;
       /* Columna centrada: con margin:auto, si el contenido es más alto que
-         la pantalla el navegador hace scroll y nada queda cortado arriba */
+         la pantalla el navegador hace scroll y nada queda cortado arriba.
+         min-height: ocupa toda la altura disponible en cualquier pantalla */
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -177,7 +178,9 @@
       margin: auto;
       width: 100%;
       max-width: 92vw;
-      padding: 14px 0;
+      min-height: 100vh;
+      min-height: 100svh;
+      padding: 16px 0;
       text-align: center;
     }
 
@@ -505,13 +508,24 @@
        ============================================================ */
     /* En pantallas de tablet y medianas: decoración lateral más discreta */
     @media (min-width: 701px) and (max-width: 1100px) {
-      .side-deco { width: 120px; gap: 14px; opacity: 0.3; }
+      .side-deco { width: 120px; gap: 14px; opacity: 0.32; }
       .side-track { font-size: 0.9rem; gap: 12px; }
     }
 
-    /* En móviles la decoración lateral se oculta para dejar espacio al centro */
+    /* En móviles: las columnas se acercan al centro, se adelgazan y quedan
+       DENTRO del área visible (ya no se ocultan). Una sola columna basta
+       porque cada lado ya repite la lista para el bucle infinito. */
     @media (max-width: 700px) {
-      .side-deco { display: none; }
+      .side-deco {
+        width: 24vw;
+        gap: 0;
+        opacity: 0.3;
+        overflow-x: visible;           /* ninguna frase se corta */
+      }
+      .side-deco.left  { left: 2vw; }
+      .side-deco.right { right: 2vw; }
+      .side-deco .side-track:nth-child(2) { display: none; }
+      .side-track { font-size: 0.72rem; gap: 10px; }
     }
 
     /* Móviles pequeños: todo se compacta pero nada se corta */
@@ -527,6 +541,25 @@
       #start-btn { font-size: 1.05rem; padding: 14px 30px; }
       #overlay p { font-size: 1.25rem; padding: 0 10px; }
       #overlay p.sub { font-size: 0.85rem; padding: 0 14px; }
+    }
+
+    /* Móviles muy estrechos (≤360px) */
+    @media (max-width: 360px) {
+      .song-title { font-size: 0.95rem; }
+      .caption { font-size: 0.78rem; }
+      .timeline .bar { width: min(170px, 44vw); }
+      #lyric { font-size: clamp(0.95rem, 4.5vw, 1.05rem); }
+    }
+
+    /* Pantalla en horizontal en el móvil (poco alto): compactar para que
+       todo quepa en una pantalla o use el scroll sin desbordar */
+    @media (max-height: 520px) {
+      .polaroid { padding: 10px 10px 6px; }
+      #lyric { height: 92px; margin-top: 10px; }
+      .song-title { margin-top: 8px; }
+      .timeline { margin-top: 6px; }
+      #pause-btn { margin-top: 10px; }
+      .caption { padding: 8px 4px 4px; }
     }
 
     /* Pantallas muy altas: no estirar demasiado la letra */
