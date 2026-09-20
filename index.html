@@ -792,8 +792,8 @@
     const imgFoto  = document.getElementById("photo");
     const numFoto  = document.getElementById("photoCount");
     const totFoto  = document.getElementById("photoTotal");
-    let indice     = 0;
     let temporizador = null;        // guarda el intervalo del carrusel
+    let colaFotos  = [];            // próximas fotos en orden aleatorio
 
     totFoto.textContent = fotos.length;
 
@@ -809,21 +809,35 @@
       numFoto.textContent = i + 1;
     }
 
-    // Arranca (o reinicia) el carrusel desde la PRIMERA foto.
+    // Crea una permutación aleatoria de los índices de las fotos
+    // (Fisher-Yates): cada vuelta recorre las fotos en un orden distinto.
+    function barajarFotos() {
+      colaFotos = [];
+      for (let i = 0; i < fotos.length; i++) colaFotos.push(i);
+      for (let i = colaFotos.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = colaFotos[i];
+        colaFotos[i] = colaFotos[j];
+        colaFotos[j] = tmp;
+      }
+    }
+
+    // Arranca (o reinicia) el carrusel desde una foto elegida al azar.
     // Se llama al presionar el botón, para que las fotos empiecen junto
     // con la canción y no antes.
     function iniciarCarrusel() {
-      indice = 0;
-      cargarFoto(0);                                           // primera foto
-      numFoto.textContent = 1;
+      barajarFotos();                                          // nuevo orden aleatorio
+      const primera = colaFotos.shift() || 0;
+      cargarFoto(primera);
+      numFoto.textContent = primera + 1;
       if (temporizador) clearInterval(temporizador);           // evita duplicados
       temporizador = setInterval(avanzarFoto, INTERVALO_FOTO);
     }
 
-    // Pasa a la siguiente foto (una sola vez)
+    // Pasa a la siguiente foto aleatoria (una sola vez)
     function avanzarFoto() {
-      indice = (indice + 1) % fotos.length;
-      mostrarFoto(indice);
+      if (colaFotos.length === 0) barajarFotos();              // nueva vuelta aleatoria
+      mostrarFoto(colaFotos.shift());
     }
 
     // Detiene el avance de las fotos (la que se ve se queda quieta)
