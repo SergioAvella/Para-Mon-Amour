@@ -29,11 +29,13 @@
       font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
       background:
         radial-gradient(circle at 50% 18%, #241620 0%, #161019 45%, var(--bg) 75%);
+      background-attachment: fixed;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      overflow-x: hidden;               /* sin scroll horizontal */
+      overflow-y: auto;                 /* si el contenido no cabe, se baja */
       color: var(--soft);
     }
 
@@ -166,21 +168,23 @@
     .stage {
       position: relative;
       z-index: 5;
-      /* Columna centrada: la polaroid y la letra siempre comparten eje */
+      /* Columna centrada: con margin:auto, si el contenido es más alto que
+         la pantalla el navegador hace scroll y nada queda cortado arriba */
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      margin: auto;
       width: 100%;
       max-width: 92vw;
-      margin: 0 auto;
+      padding: 14px 0;
       text-align: center;
     }
 
     .polaroid {
       position: relative;
-      /* Ancho FIJO: el marco nunca se desplaza ni se ensancha */
-      width: 340px;
+      /* Ancho adaptable: máximo 340px, pero nunca más ancho que la pantalla */
+      width: min(340px, 88vw);
       max-width: 100%;
       flex: 0 0 auto;
       margin: 0 auto;                /* centrado horizontal garantizado */
@@ -226,11 +230,13 @@
       transform: rotate(-1.5deg);
     }
 
-    /* Recuadro de la foto con esquinas redondeadas y borde blanco */
+    /* Recuadro de la foto con esquinas redondeadas y borde blanco.
+       aspect-ratio: la foto crece y encoge con el ancho sin deformarse */
     .photo-frame {
       position: relative;
       width: 100%;
-      height: 340px;
+      aspect-ratio: 1 / 1;
+      height: auto;
       border-radius: 14px;
       overflow: hidden;
       background: #0c0810;
@@ -272,10 +278,11 @@
        LETRA SINCRONIZADA CON EFECTO KARAOKE (iluminación progresiva)
        ============================================================ */
     #lyric {
-      /* Altura FIJA y eje centrado: al cambiar de línea la foto NO se mueve */
+      /* Altura estable que se ajusta a la pantalla y centro fijo:
+         al cambiar de línea la foto NO se mueve */
       width: min(660px, 92vw);
-      height: 130px;
-      margin: 22px auto 0;
+      height: clamp(116px, 17vh, 138px);
+      margin: 18px auto 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -284,7 +291,7 @@
       overflow: hidden;
       text-align: center;
       font-family: "Segoe Script", "Brush Script MT", Georgia, cursive;
-      font-size: 1.55rem;
+      font-size: clamp(1.05rem, 2.3vw, 1.55rem);
       font-weight: 600;
       line-height: 1.5;
       opacity: 0;
@@ -372,8 +379,7 @@
     /* Barra arrastrable para mover la canción a cualquier minuto */
     .timeline .bar {
       position: relative;
-      width: 240px;
-      max-width: 40vw;
+      width: min(240px, 46vw);
       height: 4px;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.12);
@@ -497,16 +503,35 @@
     /* ============================================================
        RESPONSIVO
        ============================================================ */
-    @media (max-width: 1100px) {
-      .side-deco { display: none; }   /* se ocultan para no tapar el centro */
+    /* En pantallas de tablet y medianas: decoración lateral más discreta */
+    @media (min-width: 701px) and (max-width: 1100px) {
+      .side-deco { width: 120px; gap: 14px; opacity: 0.3; }
+      .side-track { font-size: 0.9rem; gap: 12px; }
     }
 
+    /* En móviles la decoración lateral se oculta para dejar espacio al centro */
+    @media (max-width: 700px) {
+      .side-deco { display: none; }
+    }
+
+    /* Móviles pequeños: todo se compacta pero nada se corta */
     @media (max-width: 480px) {
-      .polaroid, .photo-frame { width: 280px; }
-      .photo-frame { height: 280px; }
-      #lyric { height: 116px; font-size: 1.15rem; }
+      .polaroid { width: min(340px, 92vw); padding: 14px 14px 8px; }
+      .polaroid::before { width: 72px; height: 22px; }
+      .photo-frame { border-width: 2px; }
+      .caption { font-size: 0.85rem; padding: 10px 4px 6px; }
+      #lyric { padding: 0 8px; font-size: clamp(1rem, 4.6vw, 1.2rem); }
+      .song-title { font-size: 1.05rem; margin-top: 12px; }
+      .timeline { margin-top: 8px; gap: 8px; }
+      .timeline .bar { width: min(200px, 46vw); }
       #start-btn { font-size: 1.05rem; padding: 14px 30px; }
-      #overlay p { font-size: 1.25rem; }
+      #overlay p { font-size: 1.25rem; padding: 0 10px; }
+      #overlay p.sub { font-size: 0.85rem; padding: 0 14px; }
+    }
+
+    /* Pantallas muy altas: no estirar demasiado la letra */
+    @media (min-height: 900px) {
+      #lyric { height: 148px; }
     }
   </style>
 </head>
