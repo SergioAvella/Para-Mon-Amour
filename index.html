@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Para ti, mi amor ❤️</title>
+  <style>
+    /* ============================================================
+       RESET Y VARIABLES GLOBALES
+       ============================================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #120d12;                 /* Fondo oscuro cálido */
+      --card: #201722;               /* Fondo de la polaroid */
+      --soft: #fff5f6;               /* Texto principal (crema rosado) */
+      --soft-dim: rgba(255, 235, 240, 0.6);
+      --accent: #ff4d6d;             /* Rojo romántico */
+      --accent-2: #ffb3c1;           /* Rosa claro */
+      --glow: rgba(255, 77, 109, 0.4);
+      --trazo: rgba(255, 255, 255, 0.1);
+    }
+
+    body {
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 50% 18%, #241620 0%, #161019 45%, var(--bg) 75%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: var(--soft);
+    }
+
+    /* ============================================================
+       CORAZONES Y LUCES (PARTÍCULAS) FLOTANTES DE FONDO
+       ============================================================ */
+    #hearts {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .heart {
+      position: absolute;
+      bottom: -70px;
+      font-size: 22px;
+      color: var(--accent);
+      opacity: 0;
+      animation-name: floatUp;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      filter: drop-shadow(0 0 10px var(--glow));
+      will-change: transform, opacity;
+    }
+
+    /* Los corazones suben desde abajo, con leve balanceo y giro */
+    @keyframes floatUp {
+      0%   { transform: translateY(0) translateX(0) rotate(0deg);       opacity: 0; }
+      12%  { opacity: var(--h-op, 0.6); }
+      80%  { opacity: var(--h-op, 0.4); }
+      100% { transform: translateY(-115vh) translateX(var(--h-drift, 40px))
+                    rotate(var(--h-spin, 25deg));                     opacity: 0; }
+    }
+
+    /* Destellos / chispitas de luz que titilan */
+    .sparkle {
+      position: absolute;
+      top: 0;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      box-shadow: 0 0 10px 3px rgba(255, 179, 193, 0.55);
+      opacity: 0;
+      animation: twinkle var(--sp-dur, 4s) ease-in-out infinite;
+      animation-delay: var(--sp-delay, 0s);
+      will-change: opacity, transform;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0;    transform: scale(0.5); }
+      50%      { opacity: var(--sp-op, 0.7); transform: scale(1.15); }
+    }
+
+    /* ============================================================
+       BOTÓN INICIAL "PRESIONAR PARA EMPEZAR"
+       ============================================================ */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      background: rgba(18, 12, 16, 0.88);
+      backdrop-filter: blur(8px);
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+
+    #overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    #overlay p {
+      font-family: "Segoe Script", "Brush Script MT", cursive;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      color: var(--soft-dim);
+      animation: pulseText 2.5s ease-in-out infinite;
+    }
+
+    #overlay p.sub {
+      font-size: 0.95rem;
+      letter-spacing: 2px;
+      color: rgba(255, 179, 193, 0.75);
+    }
+
+    @keyframes pulseText {
+      0%, 100% { opacity: 0.6; }
+      50%      { opacity: 1; }
+    }
+
+    #start-btn {
+      border: 2px solid var(--accent);
+      background: linear-gradient(135deg, rgba(255, 77, 109, 0.14), rgba(255, 179, 193, 0.06));
+      color: var(--soft);
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      padding: 16px 42px;
+      border-radius: 60px;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+      animation: heartBeat 1.8s ease-in-out infinite;
+    }
+
+    /* Latido de corazón del botón para invitarlo a presionar */
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1);    box-shadow: 0 0 18px rgba(255, 77, 109, 0.25); }
+      15%      { transform: scale(1.05); box-shadow: 0 0 34px var(--glow); }
+      30%      { transform: scale(1); }
+      45%      { transform: scale(1.04); box-shadow: 0 0 30px var(--glow); }
+    }
+
+    /* Pulso luminoso del botón al pasar el mouse */
+    #start-btn:hover {
+      transform: scale(1.08);
+      animation-play-state: paused;
+      background: rgba(255, 77, 109, 0.2);
+      box-shadow: 0 0 40px var(--glow), 0 0 80px rgba(255, 77, 109, 0.2);
+    }
+
+    /* ============================================================
+       POLAROID CENTRAL
+       ============================================================ */
+    .stage {
+      position: relative;
+      z-index: 5;
+      /* Columna centrada: la polaroid y la letra siempre comparten eje */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 92vw;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .polaroid {
+      position: relative;
+      /* Ancho FIJO: el marco nunca se desplaza ni se ensancha */
+      width: 340px;
+      max-width: 100%;
+      flex: 0 0 auto;
+      margin: 0 auto;                /* centrado horizontal garantizado */
+      background: linear-gradient(160deg, #2a1e2b 0%, var(--card) 60%);
+      border: 1px solid rgba(255, 179, 193, 0.18);
+      border-radius: 22px;
+      padding: 18px 18px 10px;
+      animation: glowPulse 5s ease-in-out infinite;
+      transition: transform 0.4s ease;
+    }
+
+    /* Halo que respira, como una vela encendida */
+    @keyframes glowPulse {
+      0%, 100% {
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55), 0 0 55px rgba(255, 77, 109, 0.22);
+      }
+      50% {
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55), 0 0 95px rgba(255, 77, 109, 0.45);
+      }
+    }
+
+    /* Cinta adhesiva decorativa arriba de la polaroid */
+    .polaroid::before {
+      content: "";
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      width: 96px;
+      height: 26px;
+      transform: translateX(-50%) rotate(-2deg);
+      background: linear-gradient(180deg, rgba(255, 179, 193, 0.55), rgba(255, 179, 193, 0.28));
+      border-radius: 3px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+    }
+
+    /* Ligera inclinación y levitación del marco */
+    .polaroid:hover {
+      transform: rotate(0deg) translateY(-4px);
+    }
+
+    .polaroid.skew {
+      transform: rotate(-1.5deg);
+    }
+
+    /* Recuadro de la foto con esquinas redondeadas y borde blanco */
+    .photo-frame {
+      position: relative;
+      width: 100%;
+      height: 340px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #0c0810;
+      border: 3px solid rgba(255, 245, 246, 0.9);
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5), 0 6px 18px rgba(0, 0, 0, 0.45);
+    }
+
+    .photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      opacity: 0;                            /* arranca invisible */
+      transition: opacity 0.6s ease;
+      transform: scale(1.05);
+    }
+
+    /* Clase que hace visible la foto (fade-in suave) */
+    .photo-frame img.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Contador de fotos estilo romántico */
+    .caption {
+      font-family: "Segoe Script", "Brush Script MT", cursive;
+      padding: 12px 6px 8px;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      color: var(--soft-dim);
+    }
+
+    .caption .count {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* ============================================================
+       LETRA SINCRONIZADA CON EFECTO KARAOKE (iluminación progresiva)
+       ============================================================ */
+    #lyric {
+      /* Altura FIJA y eje centrado: al cambiar de línea la foto NO se mueve */
+      width: min(660px, 92vw);
+      height: 130px;
+      margin: 22px auto 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 0 16px;
+      overflow: hidden;
+      text-align: center;
+      font-family: "Segoe Script", "Brush Script MT", Georgia, cursive;
+      font-size: 1.55rem;
+      font-weight: 600;
+      line-height: 1.5;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    #lyric.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* La frase que se va iluminando de izquierda a derecha.
+       --p (0 → 1) lo actualiza el JS en cada frame según el audio. */
+    .lyric-line {
+      --p: 0;
+      display: inline-block;
+      max-width: 100%;
+      background-image: linear-gradient(
+        90deg,
+        #ffffff 0%,
+        #ffd1dc 24%,
+        #ff4d6d 46%,
+        rgba(255, 245, 246, 0.22) 54%,
+        rgba(255, 245, 246, 0.22) 100%
+      );
+      background-size: 200% 100%;
+      background-repeat: no-repeat;
+      background-position: calc((1 - var(--p)) * 100%) 0;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 10px rgba(255, 77, 109, 0.55))
+              drop-shadow(0 0 22px rgba(255, 77, 109, 0.28));
+      will-change: background-position;
+    }
+
+    #lyric .heart-ico {
+      display: inline-block;
+      flex: 0 0 auto;
+      color: var(--accent);
+      -webkit-text-fill-color: var(--accent);
+      filter: drop-shadow(0 0 10px var(--glow));
+      animation: beat 1.4s ease-in-out infinite;
+    }
+
+    @keyframes beat {
+      0%, 100% { transform: scale(1); }
+      30%      { transform: scale(1.25); }
+      45%      { transform: scale(1); }
+    }
+
+    /* Título de la canción (encima de la barra de progreso) */
+    .song-title {
+      margin-top: 16px;
+      text-align: center;
+      font-family: "Segoe Script", "Brush Script MT", cursive;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--accent-2);
+      text-shadow: 0 0 14px rgba(255, 77, 109, 0.55), 0 0 30px rgba(255, 77, 109, 0.3);
+    }
+
+    .song-title span {
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: var(--soft-dim);
+    }
+
+    /* Barra de progreso de la canción */
+    .timeline {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: var(--soft-dim);
+      font-variant-numeric: tabular-nums;
+      user-select: none;
+    }
+
+    /* Barra arrastrable para mover la canción a cualquier minuto */
+    .timeline .bar {
+      position: relative;
+      width: 240px;
+      max-width: 40vw;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      cursor: pointer;
+      overflow: visible;
+      touch-action: none;                 /* permite arrastrar en móvil */
+    }
+
+    /* Zona de clic un poco más alta, sin cambiar el grosor visual */
+    .timeline .bar::before {
+      content: "";
+      position: absolute;
+      inset: -12px -6px;
+    }
+
+    .timeline .bar:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .timeline .bar i {
+      position: relative;
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), #ffb3c1);
+      border-radius: 999px;
+      box-shadow: 0 0 10px var(--glow);
+      transition: width 0.2s linear;
+    }
+
+    /* Bolita que marca la posición actual */
+    .timeline .bar i::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -6px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #fff5f6;
+      box-shadow: 0 0 12px var(--glow), 0 0 4px rgba(255, 255, 255, 0.8);
+      transform: translateY(-50%) scale(0.85);
+      transition: transform 0.15s ease;
+    }
+
+    .timeline .bar:hover i::after { transform: translateY(-50%) scale(1.1); }
+
+    /* Botón de pausa / reanudar (pausa canción y fotos) */
+    #pause-btn {
+      margin-top: 16px;
+      border: 1px solid rgba(255, 179, 193, 0.4);
+      background: rgba(255, 77, 109, 0.1);
+      color: var(--soft);
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      padding: 9px 24px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #pause-btn:hover {
+      background: rgba(255, 77, 109, 0.22);
+      box-shadow: 0 0 22px var(--glow);
+      transform: scale(1.05);
+    }
+
+    #pause-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* ============================================================
+       DECORACIÓN LATERAL: "Mi amor" EN MUCHOS IDIOMAS
+       (sutil, detrás del contenido y en bucle continuo)
+       ============================================================ */
+    .side-deco {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      width: 220px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 26px;
+      z-index: 1;                    /* detrás del escenario (z-5) */
+      overflow: hidden;
+      pointer-events: none;          /* nunca bloquea clics */
+      opacity: 0.42;                 /* visible pero sin tapar el centro */
+      -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 80%, transparent 100%);
+      mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 80%, transparent 100%);
+    }
+
+    .side-deco.left  { left: 0; }
+    .side-deco.right { right: 0; }
+
+    .side-track {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      font-family: "Segoe Script", "Brush Script MT", cursive;
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: #ffd9e2;
+      text-shadow: 0 0 12px rgba(255, 77, 109, 0.65), 0 0 26px rgba(255, 77, 109, 0.35);
+      white-space: nowrap;
+      animation: sideScroll 48s linear infinite;
+    }
+
+    .side-deco.right .side-track { animation-direction: reverse; }
+    .side-deco .side-track:nth-child(2) { animation-delay: -24s; }
+
+    @keyframes sideScroll {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-50%); }
+    }
+
+    /* ============================================================
+       RESPONSIVO
+       ============================================================ */
+    @media (max-width: 1100px) {
+      .side-deco { display: none; }   /* se ocultan para no tapar el centro */
+    }
+
+    @media (max-width: 480px) {
+      .polaroid, .photo-frame { width: 280px; }
+      .photo-frame { height: 280px; }
+      #lyric { height: 116px; font-size: 1.15rem; }
+      #start-btn { font-size: 1.05rem; padding: 14px 30px; }
+      #overlay p { font-size: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Corazones flotantes generados por JS -->
+  <div id="hearts"></div>
+
+  <!-- Decoración lateral: "Mi amor" en varios idiomas (rellenado por JS) -->
+  <div class="side-deco left" aria-hidden="true">
+    <div class="side-track"></div>
+    <div class="side-track"></div>
+  </div>
+  <div class="side-deco right" aria-hidden="true">
+    <div class="side-track"></div>
+    <div class="side-track"></div>
+  </div>
+
+  <!-- Pantalla inicial con el botón obligatorio -->
+  <div id="overlay">
+    <p>te prepare algo especial, Mon Amour</p>
+    <button id="start-btn" type="button">Presionar para empezar ❤️</button>
+    <p class="sub">Una canción, nuestras fotos y todo lo que siento por ti</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <main class="stage">
+
+    <!-- Marco estilo polaroid -->
+    <div class="polaroid skew" id="polaroid">
+      <div class="photo-frame">
+        <img id="photo" src="" alt="Nuestro momento" />
+      </div>
+      <div class="caption">
+        ♥ <span class="count" id="photoCount">1</span> / <span id="photoTotal">1</span> de nuestros momentos ♥
+      </div>
+    </div>
+
+    <!-- Letra sincronizada con la canción -->
+    <div id="lyric">…</div>
+
+    <!-- Título de la canción -->
+    <div class="song-title">Labios Compartidos <span>· Maná</span></div>
+
+    <!-- Línea de tiempo de reproducción (barra arrastrable) -->
+    <div class="timeline">
+      <span id="timeCur">0:00</span>
+      <span class="bar" id="seekBar"><i id="progress"></i></span>
+      <span id="timeTot">0:00</span>
+    </div>
+
+    <!-- Pausa / reanuda la canción y el carrusel de fotos -->
+    <button id="pause-btn" type="button" aria-label="Pausar o reanudar">⏸ Pausar</button>
+
+  </main>
+
+  <!-- Audio de fondo (se reproduce al presionar el botón) -->
+  <audio id="bg-music" src="Musica/Man%C3%A1%20-%20Labios%20Compartidos%20(Video%20Oficial).mp4" loop preload="auto"></audio>
+
+  <script>
+    /* ============================================================
+       1. CONFIGURACIÓN
+       ============================================================ */
+    // Reemplaza estas URLs por tus propias fotos (locales o en línea).
+    const fotos = [
+      "Imagenes/imagen%201.jpeg",
+      "Imagenes/imagen%202.jpeg",
+      "Imagenes/imagen%203.jpeg",
+      "Imagenes/imagen%204.jpeg",
+      "Imagenes/imagen%205.jpeg",
+      "Imagenes/imagen%206.jpeg",
+      "Imagenes/imagen%207.jpeg",
+      "Imagenes/imagen%208.jpeg",
+      "Imagenes/imagen%209.jpeg",
+      "Imagenes/imagen%2010.jpeg",
+      "Imagenes/imagen%2011.jpeg",
+      "Imagenes/imagen%2012.jpeg",
+      "Imagenes/imagen%2013.jpeg",
+      "Imagenes/imagen%2014.jpeg",
+      "Imagenes/imagen%2015.jpeg",
+      "Imagenes/imagen%2016.jpeg",
+      "Imagenes/imagen%2017.jpeg",
+      "Imagenes/imagen%2018.jpeg",
+      "Imagenes/imagen%2019.jpeg",
+      "Imagenes/imagen%2020.jpeg",
+      "Imagenes/imagen%2021.jpeg",
+      "Imagenes/imagen%2022.jpeg"
+    ];
+
+    const INTERVALO_FOTO = 4000;   // Cambio de foto cada 4 segundos
+    const DURACION_FADE  = 600;    // Duración del fundido en ms
+
+    /*
+       LETRA SINCRONIZADA (marcas de tiempo medidas del propio audio).
+       Canción: "Labios Compartidos" de Maná — el archivo Musica/*.mp4 dura
+       285.6 s (4:46), igual que el video oficial.
+       Cada entrada = { t: segundos de inicio, texto: línea de la letra }.
+       Los tiempos se obtuvieron analizando el audio real (reconocimiento de
+       voz con marcas por palabra), por lo que caen justo cuando se canta.
+       Los huecos entre bloques son los pasajes instrumentales.
+       El video canta el tramo final ("Te amo con toda mi fe…") una sola vez.
+    */
+    const letra = [
+      // Introducción / primer verso
+      { t: 12.0,  texto: "Uh-uh, eh-yeah" },
+      { t: 15.8,  texto: "Amor mío" },
+      { t: 18.2,  texto: "Si estoy debajo del vaivén de tus piernas" },
+      { t: 25.7,  texto: "Si estoy hundido en un vaivén de caderas" },
+      { t: 31.6,  texto: "Esto es el cielo, es mi cielo" },
+
+      // Segundo verso
+      { t: 41.2,  texto: "Amor fugado" },
+      { t: 44.2,  texto: "Me tomas, me dejas, me exprimes y me tiras a un lado" },
+      { t: 49.7,  texto: "Te vas a otros cielos y regresas como los colibrís" },
+      { t: 55.7,  texto: "Me tienes como un perro a tus pies" },
+
+      // Pre-coro
+      { t: 65.2,  texto: "Otra vez mi boca insensata" },
+      { t: 69.8,  texto: "Vuelve a caer en tu piel" },
+      { t: 76.8,  texto: "Vuelve a mí tu boca y provoca" },
+      { t: 80.8,  texto: "Vuelvo a caer de tus pechos a tu par de pies" },
+
+      // Coro 1
+      { t: 86.5,  texto: "Labios compartidos, labios divididos, mi amor" },
+      { t: 94.8,  texto: "Yo no puedo compartir tus labios" },
+      { t: 99.0,  texto: "Que comparto el engaño y comparto mis días y el dolor" },
+      { t: 106.0, texto: "Ya no puedo compartir tus labios" },
+      { t: 111.0, texto: "Oh amor, oh amor compartido" },
+
+      // Tercer verso (después del pasaje instrumental)
+      { t: 123.4, texto: "Amor mutante" },
+      { t: 126.3, texto: "Amigos con derecho y sin derecho de tenerte siempre" },
+      { t: 133.8, texto: "Y siempre tengo que esperar paciente" },
+      { t: 138.8, texto: "El pedazo que me toca de ti" },
+
+      // Cuarto verso
+      { t: 147.3, texto: "Relámpagos de alcohol" },
+      { t: 150.6, texto: "Las voces solas lloran en el sol, eh" },
+      { t: 156.0, texto: "Mi boca en llamas torturada" },
+      { t: 160.9, texto: "Te desnudas angelada, luego te vas" },
+
+      // Pre-coro
+      { t: 172.0, texto: "Otra vez mi boca insensata" },
+      { t: 176.9, texto: "Vuelve a caer en tu piel de miel" },
+      { t: 181.5, texto: "Vuelve a mí tu boca, duele" },
+      { t: 188.7, texto: "Vuelvo a caer de tus pechos a tu par de pies" },
+
+      // Coro 2
+      { t: 194.1, texto: "Labios compartidos, labios divididos, mi amor" },
+      { t: 200.6, texto: "Yo no puedo compartir tus labios" },
+      { t: 206.0, texto: "Que comparto el engaño y comparto mis días y el dolor" },
+      { t: 212.4, texto: "Ya no puedo compartir tus labios" },
+
+      // Puente final
+      { t: 217.6, texto: "Que me parta un rayo" },
+      { t: 221.1, texto: "Que me entierre el olvido mi amor" },
+      { t: 224.9, texto: "Pero no puedo más compartir tus labios, compartir tus besos" },
+      { t: 235.0, texto: "Labios compartidos" },
+
+      // Cierre (después del solo instrumental) — medido del audio
+      { t: 258.0, texto: "Uh-oh-oh-yeh" },
+      { t: 266.8, texto: "Te amo con toda mi fe, sin medida" },
+      { t: 271.9, texto: "Te amo aunque estés compartida" },
+      { t: 274.8, texto: "Tus labios tiene el control" },
+      { t: 276.9, texto: "Y sigues tú con el control" },
+      { t: 281.5, texto: "Labios compartidos… ❤️" }
+    ];
+
+    /* ============================================================
+       2. CORAZONES Y DESTELLOS FLOTANTES DE FONDO
+       ============================================================ */
+    const contenedor = document.getElementById("hearts");
+    const EMOJIS = ["💗", "💖", "❤️", "💘", "💞", "💓", "🌹"];
+
+    (function crearCorazones() {
+      const cantidad = 30;                     // más amor de fondo
+      for (let i = 0; i < cantidad; i++) {
+        const h = document.createElement("span");
+        h.className = "heart";
+        h.textContent = EMOJIS[i % EMOJIS.length];
+        // Posición inicial y parámetros aleatorios
+        h.style.left = Math.random() * 100 + "vw";
+        h.style.fontSize = 14 + Math.random() * 26 + "px";
+        h.style.animationDuration = 9 + Math.random() * 12 + "s";
+        h.style.animationDelay = Math.random() * 16 + "s";
+        h.style.setProperty("--h-op", (0.35 + Math.random() * 0.5).toFixed(2));
+        h.style.setProperty("--h-drift", (Math.random() * 120 - 60).toFixed(0) + "px");
+        h.style.setProperty("--h-spin", (Math.random() * 70 - 35).toFixed(0) + "deg");
+        contenedor.appendChild(h);
+      }
+
+      // Chispitas de luz que titilan, repartidas por toda la pantalla
+      const chispas = 26;
+      for (let i = 0; i < chispas; i++) {
+        const s = document.createElement("span");
+        s.className = "sparkle";
+        s.style.left = Math.random() * 100 + "vw";
+        s.style.top = Math.random() * 100 + "vh";
+        s.style.setProperty("--sp-op", (0.35 + Math.random() * 0.55).toFixed(2));
+        s.style.setProperty("--sp-dur", (2.5 + Math.random() * 3.5).toFixed(2) + "s");
+        s.style.setProperty("--sp-delay", (Math.random() * 6).toFixed(2) + "s");
+        contenedor.appendChild(s);
+      }
+    })();
+
+    /* ============================================================
+       2b. TEXTOS LATERALES: "Mi amor" EN MUCHOS IDIOMAS
+       ============================================================ */
+    const FRASES_AMOR = [
+      "Mi amor", "Mon amour", "My love", "Amore mio", "Meu amor",
+      "Meine Liebe", "Mijn liefde", "Min älskling", "Moja miłość",
+      "Моя любовь", "Αγάπη μου", "Aşkım", "私の愛", "내 사랑",
+      "我的愛", "حبيبي", "אהבתי", "मेरा प्यार", "Amor meu",
+      "Tesoro mío", "Mi vida", "Ma chérie", "My darling", "Mein Schatz"
+    ];
+
+    (function crearTextosLaterales() {
+      // Dos columnas por lado; se duplica la lista para que el bucle sea perfecto
+      const palabras = FRASES_AMOR.concat(FRASES_AMOR);
+      document.querySelectorAll(".side-deco .side-track").forEach((track) => {
+        palabras.forEach((frase) => {
+          const span = document.createElement("span");
+          span.textContent = frase + " ♥";
+          track.appendChild(span);
+        });
+      });
+    })();
+
+    /* ============================================================
+       3. CARRUSEL DE FOTOS CON FADE-IN / FADE-OUT
+       ============================================================ */
+    const imgFoto  = document.getElementById("photo");
+    const numFoto  = document.getElementById("photoCount");
+    const totFoto  = document.getElementById("photoTotal");
+    let indice     = 0;
+    let temporizador = null;        // guarda el intervalo del carrusel
+
+    totFoto.textContent = fotos.length;
+
+    function cargarFoto(i) {
+      imgFoto.src = fotos[i];
+      imgFoto.onload = () => imgFoto.classList.add("show");   // fade-in
+    }
+
+    // Muestra la foto indicada con un fundido suave
+    function mostrarFoto(i) {
+      imgFoto.classList.remove("show");                        // fade-out
+      setTimeout(() => cargarFoto(i), DURACION_FADE);          // nueva foto + fade-in
+      numFoto.textContent = i + 1;
+    }
+
+    // Arranca (o reinicia) el carrusel desde la PRIMERA foto.
+    // Se llama al presionar el botón, para que las fotos empiecen junto
+    // con la canción y no antes.
+    function iniciarCarrusel() {
+      indice = 0;
+      cargarFoto(0);                                           // primera foto
+      numFoto.textContent = 1;
+      if (temporizador) clearInterval(temporizador);           // evita duplicados
+      temporizador = setInterval(avanzarFoto, INTERVALO_FOTO);
+    }
+
+    // Pasa a la siguiente foto (una sola vez)
+    function avanzarFoto() {
+      indice = (indice + 1) % fotos.length;
+      mostrarFoto(indice);
+    }
+
+    // Detiene el avance de las fotos (la que se ve se queda quieta)
+    function pausarCarrusel() {
+      if (temporizador) { clearInterval(temporizador); temporizador = null; }
+    }
+
+    // Reanuda el avance de las fotos
+    function reanudarCarrusel() {
+      if (!temporizador) temporizador = setInterval(avanzarFoto, INTERVALO_FOTO);
+    }
+
+    // Precarga todas las fotos para que el cambio sea instantáneo
+    fotos.forEach((src) => { const im = new Image(); im.src = src; });
+
+    /* ============================================================
+       4. MÚSICA + LETRA SINCRONIZADA CON timeupdate
+       ============================================================ */
+    const audio    = document.getElementById("bg-music");
+    const lyricEl  = document.getElementById("lyric");
+    const progress = document.getElementById("progress");
+    const curEl    = document.getElementById("timeCur");
+    const totEl    = document.getElementById("timeTot");
+    const polaroid = document.getElementById("polaroid");
+
+    let lineaActual = -1;      // índice de la línea que suena
+    let lineaDur    = 1;       // duración estimada de esa línea
+    let lineEl      = null;    // <span> cuyo texto se va iluminando
+    let rafId       = null;    // id del bucle de animación (~60 fps)
+
+    // Formatea segundos -> "m:ss"
+    function formato(seg) {
+      if (!isFinite(seg)) seg = 0;
+      const m = Math.floor(seg / 60);
+      const s = Math.floor(seg % 60).toString().padStart(2, "0");
+      return m + ":" + s;
+    }
+
+    // Índice de la línea vigente en el segundo t (-1 si aún no empieza)
+    function indiceLinea(t) {
+      for (let i = letra.length - 1; i >= 0; i--) {
+        if (t >= letra[i].t) return i;
+      }
+      return -1;
+    }
+
+    // Duración "de canto" de una línea: el hueco hasta la siguiente, pero
+    // acotado para no quedarse a medias durante los pasajes instrumentales.
+    function duracionLinea(i) {
+      const inicio = letra[i].t;
+      const fin    = (i + 1 < letra.length) ? letra[i + 1].t : (audio.duration || inicio + 5);
+      const gap    = fin - inicio;
+      const estimado = Math.max(2.2, letra[i].texto.length * 0.135);
+      return Math.max(1.2, Math.min(gap, estimado));
+    }
+
+    // Escribe el corazón + el texto iluminable y lo guarda en lineEl
+    function pintarLetra(texto) {
+      lyricEl.textContent = "";
+      const ico = document.createElement("span");
+      ico.className = "heart-ico";
+      ico.textContent = "❤";
+      lineEl = document.createElement("span");
+      lineEl.className = "lyric-line";
+      lineEl.textContent = texto;
+      lyricEl.appendChild(ico);
+      lyricEl.appendChild(lineEl);
+      return lineEl;
+    }
+
+    // Barra, reloj, cambio de línea y progreso del karaoke
+    function actualizar(t) {
+      // Barra de progreso y reloj
+      progress.style.width = (t / audio.duration * 100 || 0) + "%";
+      curEl.textContent = formato(t);
+
+      // Si cambió de línea, la pintamos y calculamos su duración
+      const idx = indiceLinea(t);
+      if (idx !== lineaActual) {
+        lineaActual = idx;
+        if (idx >= 0) {
+          pintarLetra(letra[idx].texto);
+          lineaDur = duracionLinea(idx);
+          mostrarLetra();
+        }
+      }
+
+      // Iluminación tipo karaoke: --p va de 0 (apagado) a 1 (brillante)
+      if (lineaActual >= 0 && lineEl) {
+        const p = Math.min(1, Math.max(0, (t - letra[lineaActual].t) / lineaDur));
+        lineEl.style.setProperty("--p", p.toFixed(4));
+      }
+    }
+
+    // Bucle fluido para que el brillo avance al ritmo real de la canción
+    function bucle() {
+      actualizar(audio.currentTime);
+      rafId = audio.paused ? null : requestAnimationFrame(bucle);
+    }
+
+    audio.addEventListener("timeupdate", () => { if (!rafId) actualizar(audio.currentTime); });
+    audio.addEventListener("seeked", () => actualizar(audio.currentTime));
+
+    /* ---- Barra arrastrable: mover la canción a cualquier minuto ---- */
+    const seekBar = document.getElementById("seekBar");
+    let arrastrando = false;
+
+    // Convierte la posición del puntero en un segundo de la canción
+    function segundoDesdeEvento(e) {
+      if (!audio.duration) return 0;
+      const rect = seekBar.getBoundingClientRect();
+      let x = (e.clientX - rect.left) / rect.width;
+      x = Math.min(1, Math.max(0, x));
+      return x * audio.duration;
+    }
+
+    // Salta a la posición señalada y refresca la letra al instante
+    function buscarEn(e) {
+      audio.currentTime = segundoDesdeEvento(e);
+      actualizar(audio.currentTime);
+    }
+
+    seekBar.addEventListener("pointerdown", (e) => {
+      arrastrando = true;
+      if (seekBar.setPointerCapture) seekBar.setPointerCapture(e.pointerId);
+      buscarEn(e);
+      e.preventDefault();
+    });
+
+    seekBar.addEventListener("pointermove", (e) => {
+      if (arrastrando) buscarEn(e);
+    });
+
+    ["pointerup", "pointercancel"].forEach((tipo) => {
+      seekBar.addEventListener(tipo, () => { arrastrando = false; });
+    });
+
+    /* ---- Botón de pausa: detiene/reanuda canción + fotos ---- */
+    const pauseBtn = document.getElementById("pause-btn");
+
+    function actualizarBotonPausa() {
+      const pausado = audio.paused;
+      pauseBtn.textContent = pausado ? "▶ Reanudar" : "⏸ Pausar";
+      pauseBtn.setAttribute("aria-label", pausado ? "Reanudar" : "Pausar");
+    }
+
+    audio.addEventListener("play", () => {
+      if (!rafId) bucle();
+      reanudarCarrusel();          // las fotos siguen a la canción
+      actualizarBotonPausa();
+    });
+
+    audio.addEventListener("pause", () => {
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      pausarCarrusel();            // las fotos se detienen con la canción
+      actualizarBotonPausa();
+    });
+
+    // Un solo botón que pausa o reanuda todo a la vez
+    pauseBtn.addEventListener("click", () => {
+      if (audio.paused) audio.play();
+      else audio.pause();
+    });
+
+    // Duración total disponible una vez se cargan los metadatos
+    audio.addEventListener("loadedmetadata", () => {
+      totEl.textContent = formato(audio.duration);
+    });
+
+    // Al terminar la canción, deja un mensaje final totalmente iluminado
+    audio.addEventListener("ended", () => {
+      lineaActual = -1;
+      const fin = pintarLetra("Gracias por ser mi persona favorita");
+      fin.style.setProperty("--p", "1");
+      mostrarLetra();
+    });
+
+    // Animación de entrada de cada línea
+    function mostrarLetra() {
+      lyricEl.classList.remove("active");
+      // Reflow forzado para reiniciar la transición CSS
+      void lyricEl.offsetWidth;
+      lyricEl.classList.add("active");
+    }
+
+    /* ============================================================
+       5. BOTÓN INICIAL: DESBLOQUEA EL AUDIO (autoplay policy)
+       ============================================================ */
+    document.getElementById("start-btn").addEventListener("click", () => {
+      // Ocultar la pantalla inicial
+      document.getElementById("overlay").classList.add("hidden");
+
+      // Retirar la inclinación del marco (efecto sutil)
+      polaroid.classList.remove("skew");
+
+      // Arrancar las fotos DESDE LA PRIMERA, justo al empezar la canción
+      iniciarCarrusel();
+
+      // Reproducir la música: requiere gesto del usuario
+      audio.play()
+        .catch((err) => console.warn("No se pudo reproducir:", err));
+    });
+  </script>
+</body>
+</html>
