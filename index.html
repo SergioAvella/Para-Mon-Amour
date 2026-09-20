@@ -348,6 +348,25 @@
       45%      { transform: scale(1); }
     }
 
+    /* Título de la pareja (arriba de la polaroid) */
+    .couple-title {
+      margin-bottom: 14px;
+      text-align: center;
+      font-family: "Segoe Script", "Brush Script MT", cursive;
+      font-size: clamp(1.7rem, 5.4vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--accent-2);
+      text-shadow: 0 0 18px rgba(255, 77, 109, 0.6), 0 0 40px rgba(255, 77, 109, 0.35);
+    }
+
+    .couple-title span {
+      font-weight: 400;
+      font-size: 0.8em;
+      color: var(--soft-dim);
+      margin: 0 8px;
+    }
+
     /* Título de la canción (encima de la barra de progreso) */
     .song-title {
       margin-top: 16px;
@@ -455,6 +474,179 @@
       transform: scale(0.97);
     }
 
+    /* Botón para abrir la galería de fotos */
+    #galeria-btn {
+      margin-top: 10px;
+      border: 1px solid rgba(255, 179, 193, 0.45);
+      background: linear-gradient(135deg, rgba(255, 77, 109, 0.16), rgba(255, 179, 193, 0.05));
+      color: var(--soft);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      padding: 9px 22px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #galeria-btn:hover {
+      background: rgba(255, 77, 109, 0.24);
+      box-shadow: 0 0 24px var(--glow);
+      transform: scale(1.05);
+    }
+
+    /* ============================================================
+       GALERÍA: TODAS LAS FOTOS EN UNA CUADRÍCULA
+       ============================================================ */
+    #galeria {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background:
+        radial-gradient(circle at 25% 15%, rgba(255, 77, 109, 0.16), transparent 46%),
+        radial-gradient(circle at 75% 85%, rgba(255, 179, 193, 0.13), transparent 46%),
+        rgba(16, 10, 14, 0.96);
+      backdrop-filter: blur(6px);
+      overflow-y: auto;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+
+    #galeria.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    /* Cabecera fija de la galería */
+    .g-head {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: linear-gradient(180deg, rgba(16, 10, 14, 0.95), rgba(16, 10, 14, 0.85));
+      border-bottom: 1px solid rgba(255, 179, 193, 0.15);
+    }
+
+    .g-head h2 {
+      font-family: "Segoe Script", "Brush Script MT", cursive;
+      font-size: 1.3rem;
+      color: var(--accent-2);
+      text-shadow: 0 0 14px rgba(255, 77, 109, 0.5);
+      letter-spacing: 1px;
+    }
+
+    .g-head .g-sub {
+      display: block;
+      font-family: "Segoe Script", "Brush Script MT", cursive;
+      font-size: 0.78rem;
+      font-weight: normal;
+      color: rgba(255, 179, 193, 0.85);
+      text-shadow: 0 0 10px rgba(255, 77, 109, 0.4);
+      letter-spacing: 1.5px;
+      margin-top: 3px;
+    }
+
+    #galeria-cierre {
+      border: 1px solid rgba(255, 179, 193, 0.4);
+      background: rgba(255, 77, 109, 0.12);
+      color: var(--soft);
+      font-size: 1.1rem;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #galeria-cierre:hover {
+      background: rgba(255, 77, 109, 0.28);
+      box-shadow: 0 0 18px var(--glow);
+      transform: scale(1.1) rotate(90deg);
+    }
+
+    /* Cuadrícula de mini-polaroids */
+    .g-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+      gap: 18px;
+      width: min(920px, 100%);
+      margin: 0 auto;
+      padding: 88px 20px 50px;
+    }
+
+    /* Cada foto: marco tipo polaroid + cinta + rotación casera */
+    .g-item {
+      margin: 0;
+      opacity: 1;
+      cursor: pointer;
+    }
+
+    .g-animar .g-item {
+      animation: gEntrada 0.55s ease both;
+      animation-delay: calc(var(--i) * 55ms);
+    }
+
+    .g-marco {
+      position: relative;
+      background: linear-gradient(165deg, #fff9f5, #ffe3ea);
+      padding: 7px 7px 5px;
+      border-radius: 6px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+      transform: rotate(var(--g-rot));
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Cinta adhesiva en la esquina */
+    .g-marco::before {
+      content: "";
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      width: 44px;
+      height: 16px;
+      transform: translateX(-50%) rotate(-6deg);
+      background: rgba(255, 179, 193, 0.35);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+
+    .g-marco img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 4px;
+      display: block;
+    }
+
+    .g-item:hover .g-marco {
+      transform: rotate(0deg) scale(1.07);
+      box-shadow: 0 0 30px var(--glow), 0 14px 30px rgba(0, 0, 0, 0.55);
+    }
+
+    .g-item figcaption {
+      text-align: center;
+      font-family: "Segoe Script", "Brush Script MT", cursive;
+      font-size: 0.85rem;
+      color: #ff8ba0;
+      padding: 7px 4px 2px;
+      text-shadow: 0 0 10px rgba(255, 77, 109, 0.55);
+      letter-spacing: 1px;
+    }
+
+    /* Entrada suave y escalonada al abrir la galería */
+    @keyframes gEntrada {
+      from { opacity: 0; transform: translateY(16px) scale(0.94); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
     /* ============================================================
        FONDO DECORATIVO: "Mi amor" EN MUCHOS IDIOMAS
        Repartido por TODA la pantalla (visible en cualquier dispositivo).
@@ -525,6 +717,14 @@
       #start-btn { font-size: 1.05rem; padding: 14px 30px; }
       #overlay p { font-size: 1.25rem; padding: 0 10px; }
       #overlay p.sub { font-size: 0.85rem; padding: 0 14px; }
+      #galeria-btn { font-size: 0.82rem; padding: 8px 18px; }
+      .g-head { padding: 12px 14px; }
+      .g-head h2 { font-size: 1rem; }
+      .g-head .g-sub { font-size: 0.66rem; }
+      .g-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; padding: 72px 12px 32px; }
+      .g-marco { padding: 5px 5px 4px; }
+      .g-marco::before { width: 36px; height: 13px; top: -10px; }
+      .g-item figcaption { font-size: 0.75rem; }
     }
 
     /* Móviles muy estrechos (≤360px) */
@@ -571,6 +771,9 @@
   <!-- Contenido principal -->
   <main class="stage">
 
+    <!-- Título de la pareja -->
+    <div class="couple-title">Sergio <span>y</span> Natalia</div>
+
     <!-- Marco estilo polaroid -->
     <div class="polaroid skew" id="polaroid">
       <div class="photo-frame">
@@ -597,7 +800,19 @@
     <!-- Pausa / reanuda la canción y el carrusel de fotos -->
     <button id="pause-btn" type="button" aria-label="Pausar o reanudar">⏸ Pausar</button>
 
+    <!-- Ver todas las fotos (galería) -->
+    <button id="galeria-btn" type="button" aria-label="Ver todas nuestras fotos">♥ Ver todas nuestras fotos</button>
+
   </main>
+
+  <!-- Galería: todas las fotos en una cuadrícula -->
+  <div id="galeria" aria-hidden="true">
+    <div class="g-head">
+      <h2>♥ Nuestras fotos ♥<span class="g-sub">✨ cada recuerdo tuyo es mi favorito ✨</span></h2>
+      <button id="galeria-cierre" type="button" aria-label="Cerrar galería">✕</button>
+    </div>
+    <div class="g-grid" id="galeria-grid"></div>
+  </div>
 
   <!-- Audio de fondo (se reproduce al presionar el botón) -->
   <audio id="bg-music" src="Musica/Man%C3%A1%20-%20Labios%20Compartidos%20(Video%20Oficial).mp4" loop preload="auto"></audio>
@@ -651,7 +866,7 @@
       { t: 15.8,  texto: "Amor mío" },
       { t: 18.2,  texto: "Si estoy debajo del vaivén de tus piernas" },
       { t: 25.7,  texto: "Si estoy hundido en un vaivén de caderas" },
-      { t: 31.6,  texto: "Esto es el cielo, es mi cielo" },
+      { t: 32.6,  texto: "Esto es el cielo, es mi cielo" },
 
       // Segundo verso
       { t: 41.2,  texto: "Amor fugado" },
@@ -661,13 +876,13 @@
 
       // Pre-coro
       { t: 65.2,  texto: "Otra vez mi boca insensata" },
-      { t: 69.8,  texto: "Vuelve a caer en tu piel" },
+      { t: 70.2,  texto: "Vuelve a caer en tu piel" },
       { t: 76.8,  texto: "Vuelve a mí tu boca y provoca" },
-      { t: 80.8,  texto: "Vuelvo a caer de tus pechos a tu par de pies" },
+      { t: 82.2,  texto: "Vuelvo a caer de tus pechos a tu par de pies" },
 
       // Coro 1
-      { t: 86.5,  texto: "Labios compartidos, labios divididos, mi amor" },
-      { t: 94.8,  texto: "Yo no puedo compartir tus labios" },
+      { t: 87.2,  texto: "Labios compartidos, labios divididos, mi amor" },
+      { t: 93.8,  texto: "Yo no puedo compartir tus labios" },
       { t: 99.0,  texto: "Que comparto el engaño y comparto mis días y el dolor" },
       { t: 106.0, texto: "Ya no puedo compartir tus labios" },
       { t: 111.0, texto: "Oh amor, oh amor compartido" },
@@ -680,7 +895,7 @@
 
       // Cuarto verso
       { t: 147.3, texto: "Relámpagos de alcohol" },
-      { t: 150.6, texto: "Las voces solas lloran en el sol, eh" },
+      { t: 149.8, texto: "Las voces solas lloran en el sol, eh" },
       { t: 156.0, texto: "Mi boca en llamas torturada" },
       { t: 160.9, texto: "Te desnudas angelada, luego te vas" },
 
@@ -703,10 +918,12 @@
       { t: 235.0, texto: "Labios compartidos" },
 
       // Cierre (después del solo instrumental) — medido del audio
-      { t: 258.0, texto: "Uh-oh-oh-yeh" },
+      // La estrofa se canta DOS veces; la 1ª empieza a los 249 s.
+      { t: 249.4, texto: "Te amo con toda mi fe, sin medida" },
+      { t: 255.4, texto: "Te amo aunque estés compartida" },
+      { t: 258.9, texto: "Tus labios tienen el control" },
       { t: 266.8, texto: "Te amo con toda mi fe, sin medida" },
       { t: 271.9, texto: "Te amo aunque estés compartida" },
-      { t: 274.8, texto: "Tus labios tiene el control" },
       { t: 276.9, texto: "Y sigues tú con el control" },
       { t: 281.5, texto: "Labios compartidos… ❤️" }
     ];
@@ -794,6 +1011,7 @@
     const totFoto  = document.getElementById("photoTotal");
     let temporizador = null;        // guarda el intervalo del carrusel
     let colaFotos  = [];            // próximas fotos en orden aleatorio
+    let contadorFoto = 0;           // cuál va saliendo (1ª, 2ª, 3ª…)
 
     totFoto.textContent = fotos.length;
 
@@ -806,7 +1024,6 @@
     function mostrarFoto(i) {
       imgFoto.classList.remove("show");                        // fade-out
       setTimeout(() => cargarFoto(i), DURACION_FADE);          // nueva foto + fade-in
-      numFoto.textContent = i + 1;
     }
 
     // Crea una permutación aleatoria de los índices de las fotos
@@ -828,8 +1045,9 @@
     function iniciarCarrusel() {
       barajarFotos();                                          // nuevo orden aleatorio
       const primera = colaFotos.shift() || 0;
+      contadorFoto = 1;                                        // la 1ª que sale
       cargarFoto(primera);
-      numFoto.textContent = primera + 1;
+      numFoto.textContent = contadorFoto;
       if (temporizador) clearInterval(temporizador);           // evita duplicados
       temporizador = setInterval(avanzarFoto, INTERVALO_FOTO);
     }
@@ -837,6 +1055,9 @@
     // Pasa a la siguiente foto aleatoria (una sola vez)
     function avanzarFoto() {
       if (colaFotos.length === 0) barajarFotos();              // nueva vuelta aleatoria
+      // El número cuenta el orden en que van apareciendo, sea cual sea la foto
+      contadorFoto = (contadorFoto % fotos.length) + 1;        // 1,2,…,22,1,2…
+      numFoto.textContent = contadorFoto;
       mostrarFoto(colaFotos.shift());
     }
 
@@ -852,6 +1073,58 @@
 
     // Precarga todas las fotos para que el cambio sea instantáneo
     fotos.forEach((src) => { const im = new Image(); im.src = src; });
+
+    /* ============================================================
+       3b. GALERÍA: VER TODAS LAS FOTOS
+       ============================================================ */
+    const galeriaBtn  = document.getElementById("galeria-btn");
+    const galeria     = document.getElementById("galeria");
+    const galeriaGrid = document.getElementById("galeria-grid");
+
+    // Construye la cuadrícula con las 22 fotos (mismo orden de la lista)
+    // Cada una se muestra como un mini-polaroid con rotación casera.
+    fotos.forEach((src, i) => {
+      const item  = document.createElement("figure");
+      item.className = "g-item";
+      item.style.setProperty("--i", i);
+      item.style.setProperty("--g-rot", (Math.random() * 4 - 2).toFixed(1) + "deg");
+
+      const marco = document.createElement("div");
+      marco.className = "g-marco";
+      const im = document.createElement("img");
+      im.src = src;
+      im.alt = "Nuestra foto " + (i + 1);
+      im.loading = "lazy";
+      marco.appendChild(im);
+
+      const cap = document.createElement("figcaption");
+      cap.textContent = (i + 1) + " ❤";
+
+      item.appendChild(marco);
+      item.appendChild(cap);
+      galeriaGrid.appendChild(item);
+    });
+
+    function abrirGaleria() {
+      galeria.classList.add("open");
+      galeria.setAttribute("aria-hidden", "false");
+      // Reproduce la entrada escalonada de las fotos cada vez que se abre
+      galeriaGrid.classList.remove("g-animar");
+      void galeriaGrid.offsetWidth;                    // fuerza reflow
+      galeriaGrid.classList.add("g-animar");
+    }
+
+    function cerrarGaleria() {
+      galeria.classList.remove("open");
+      galeria.setAttribute("aria-hidden", "true");
+    }
+
+    galeriaBtn.addEventListener("click", abrirGaleria);
+    document.getElementById("galeria-cierre").addEventListener("click", cerrarGaleria);
+
+    // Clic fuera de las fotos o tecla Esc cierran la galería
+    galeria.addEventListener("click", (e) => { if (e.target === galeria) cerrarGaleria(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") cerrarGaleria(); });
 
     /* ============================================================
        4. MÚSICA + LETRA SINCRONIZADA CON timeupdate
