@@ -456,78 +456,62 @@
     }
 
     /* ============================================================
-       DECORACIÓN LATERAL: "Mi amor" EN MUCHOS IDIOMAS
-       (sutil, detrás del contenido y en bucle continuo)
+       FONDO DECORATIVO: "Mi amor" EN MUCHOS IDIOMAS
+       Repartido por TODA la pantalla (visible en cualquier dispositivo).
+       Las frases flotan suavemente; el JS las coloca con posición y
+       tamaño aleatorios, siempre dentro del área visible.
        ============================================================ */
-    .side-deco {
+    #amor-bg {
       position: fixed;
-      top: 0;
-      bottom: 0;
-      width: 220px;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      gap: 26px;
+      inset: 0;
       z-index: 1;                    /* detrás del escenario (z-5) */
       overflow: hidden;
       pointer-events: none;          /* nunca bloquea clics */
-      opacity: 0.42;                 /* visible pero sin tapar el centro */
-      -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 80%, transparent 100%);
-      mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 80%, transparent 100%);
     }
 
-    .side-deco.left  { left: 0; }
-    .side-deco.right { right: 0; }
-
-    .side-track {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
+    #amor-bg span {
+      position: absolute;
+      white-space: nowrap;
       font-family: "Segoe Script", "Brush Script MT", cursive;
-      font-size: 1.15rem;
       font-weight: 600;
       letter-spacing: 1px;
       color: #ffd9e2;
-      text-shadow: 0 0 12px rgba(255, 77, 109, 0.65), 0 0 26px rgba(255, 77, 109, 0.35);
-      white-space: nowrap;
-      animation: sideScroll 48s linear infinite;
+      text-shadow: 0 0 12px rgba(255, 77, 109, 0.6), 0 0 26px rgba(255, 77, 109, 0.3);
+      /* Las frases cruzan la pantalla con un recorrido ONDULADO,
+         como una serpiente. El JS fija duración, retardo, dirección,
+         la amplitud (--amp) y la rotación. ease-in-out redondea las
+         curvas para que no se vean rectas. */
+      animation-name: serpiente;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+      will-change: translate;
     }
 
-    .side-deco.right .side-track { animation-direction: reverse; }
-    .side-deco .side-track:nth-child(2) { animation-delay: -24s; }
-
-    @keyframes sideScroll {
-      from { transform: translateY(0); }
-      to   { transform: translateY(-50%); }
+    /* Recorrido serpenteante: sube y baja varias veces mientras cruza,
+       como una "S" doble al deslizarse por la pantalla. */
+    @keyframes serpiente {
+      0%    { translate: -115vw calc(var(--amp, 60px) * 0); }
+      6%    { translate: -98vw  calc(var(--amp, 60px) * 0.4); }
+      12%   { translate: -86vw  calc(var(--amp, 60px) * 0.85); }
+      18%   { translate: -72vw  calc(var(--amp, 60px) * 0.97); }
+      24%   { translate: -58vw  calc(var(--amp, 60px) * 1); }
+      30%   { translate: -44vw  calc(var(--amp, 60px) * 0.9); }
+      36%   { translate: -29vw  calc(var(--amp, 60px) * 0.7); }
+      42%   { translate: -15vw  calc(var(--amp, 60px) * 0.3); }
+      48%   { translate: 0vw    calc(var(--amp, 60px) * 0.05); }
+      54%   { translate: 15vw   calc(var(--amp, 60px) * -0.3); }
+      60%   { translate: 29vw   calc(var(--amp, 60px) * -0.7); }
+      66%   { translate: 44vw   calc(var(--amp, 60px) * -0.9); }
+      72%   { translate: 58vw   calc(var(--amp, 60px) * -1); }
+      78%   { translate: 72vw   calc(var(--amp, 60px) * -0.97); }
+      84%   { translate: 86vw   calc(var(--amp, 60px) * -0.85); }
+      90%   { translate: 98vw   calc(var(--amp, 60px) * -0.4); }
+      100%  { translate: 115vw  calc(var(--amp, 60px) * 0); }
     }
 
     /* ============================================================
        RESPONSIVO
        ============================================================ */
-    /* En pantallas de tablet y medianas: decoración lateral más discreta */
-    @media (min-width: 701px) and (max-width: 1100px) {
-      .side-deco { width: 120px; gap: 14px; opacity: 0.32; }
-      .side-track { font-size: 0.9rem; gap: 12px; }
-    }
-
-    /* En móviles: las columnas se acercan al centro, se adelgazan y quedan
-       DENTRO del área visible (ya no se ocultan). Una sola columna basta
-       porque cada lado ya repite la lista para el bucle infinito. */
-    @media (max-width: 700px) {
-      .side-deco {
-        width: 24vw;
-        gap: 0;
-        opacity: 0.3;
-        overflow-x: visible;           /* ninguna frase se corta */
-      }
-      .side-deco.left  { left: 2vw; }
-      .side-deco.right { right: 2vw; }
-      .side-deco .side-track:nth-child(2) { display: none; }
-      .side-track { font-size: 0.72rem; gap: 10px; }
-    }
-
     /* Móviles pequeños: todo se compacta pero nada se corta */
     @media (max-width: 480px) {
       .polaroid { width: min(340px, 92vw); padding: 14px 14px 8px; }
@@ -573,15 +557,9 @@
   <!-- Corazones flotantes generados por JS -->
   <div id="hearts"></div>
 
-  <!-- Decoración lateral: "Mi amor" en varios idiomas (rellenado por JS) -->
-  <div class="side-deco left" aria-hidden="true">
-    <div class="side-track"></div>
-    <div class="side-track"></div>
-  </div>
-  <div class="side-deco right" aria-hidden="true">
-    <div class="side-track"></div>
-    <div class="side-track"></div>
-  </div>
+  <!-- Fondo decorativo: "Mi amor" en varios idiomas repartido por toda la
+       pantalla (las frases las coloca el JS) -->
+  <div id="amor-bg" aria-hidden="true"></div>
 
   <!-- Pantalla inicial con el botón obligatorio -->
   <div id="overlay">
@@ -771,7 +749,10 @@
     })();
 
     /* ============================================================
-       2b. TEXTOS LATERALES: "Mi amor" EN MUCHOS IDIOMAS
+       2b. FONDO DECORATIVO: "Mi amor" EN MUCHOS IDIOMAS
+       Repartido por toda la pantalla. Aprovecha FRASES_AMOR para
+       colocarlas en posiciones al azar: se ven en cualquier
+       dispositivo, incluso los celulares pequeños.
        ============================================================ */
     const FRASES_AMOR = [
       "Mi amor", "Mon amour", "My love", "Amore mio", "Meu amor",
@@ -781,16 +762,28 @@
       "Tesoro mío", "Mi vida", "Ma chérie", "My darling", "Mein Schatz"
     ];
 
-    (function crearTextosLaterales() {
-      // Dos columnas por lado; se duplica la lista para que el bucle sea perfecto
-      const palabras = FRASES_AMOR.concat(FRASES_AMOR);
-      document.querySelectorAll(".side-deco .side-track").forEach((track) => {
-        palabras.forEach((frase) => {
-          const span = document.createElement("span");
-          span.textContent = frase + " ♥";
-          track.appendChild(span);
-        });
-      });
+    (function crearFondoAmor() {
+      const fondo = document.getElementById("amor-bg");
+      const esMovil = window.innerWidth < 700;
+      const cantidad = esMovil ? 20 : 30;      // suficientes para cubrir la pantalla
+      for (let i = 0; i < cantidad; i++) {
+        const span = document.createElement("span");
+        const frase = FRASES_AMOR[i % FRASES_AMOR.length] + " ♥";
+        span.textContent = frase;
+        // Posición dentro del área visible (evita bordes recortados)
+        span.style.left = (1 + Math.random() * 71) + "vw";    // 1%..72%
+        span.style.top  = (2 + Math.random() * 82) + "vh";    // 2%..84%
+        span.style.fontSize = (0.72 + Math.random() * 0.6) * (esMovil ? 0.75 : 1) + "rem";
+        span.style.opacity = (0.22 + Math.random() * 0.14).toFixed(2);
+        span.style.animationDuration = (26 + Math.random() * 30).toFixed(1) + "s";
+        span.style.animationDelay = (-Math.random() * 45).toFixed(1) + "s";
+        span.style.animationDirection = Math.random() < 0.5 ? "normal" : "reverse";
+        // Amplitud de la onda serpenteante (los picos de arriba/abajo)
+        span.style.setProperty("--amp", (40 + Math.random() * 55).toFixed(0) + "px");
+        span.style.transform =
+          "rotate(" + (Math.random() * 10 - 5).toFixed(1) + "deg)";
+        fondo.appendChild(span);
+      }
     })();
 
     /* ============================================================
